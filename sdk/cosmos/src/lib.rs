@@ -35,7 +35,6 @@ mod resource_quota;
 pub mod responses;
 pub mod stored_procedure;
 mod to_json_vector;
-mod traits;
 pub mod trigger;
 mod user;
 mod user_defined_function;
@@ -57,7 +56,6 @@ pub use self::query::{Param, ParamDef, Query};
 pub use self::requests::*;
 pub use self::resource::Resource;
 pub use self::resource_quota::ResourceQuota;
-pub use self::traits::*;
 pub use self::trigger::{Trigger, TriggerName};
 use crate::clients::*;
 use crate::collection::Collection;
@@ -395,11 +393,8 @@ pub trait ExpirySecondsSupport {
     fn with_expiry_seconds(self, expiry_seconds: u64) -> Self::O;
 }
 
-pub trait DatabaseClientRequired<'a, C>
-where
-    C: CosmosClient,
-{
-    fn database_client(&self) -> &'a dyn DatabaseClient<C>;
+pub trait DatabaseClientRequired<'a> {
+    fn database_client(&self) -> &'a DatabaseClient;
 }
 
 pub trait DatabaseSupport<'a> {

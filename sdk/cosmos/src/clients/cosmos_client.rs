@@ -1,10 +1,7 @@
-use crate::clients::DatabaseStruct;
+use super::DatabaseClient;
 use crate::headers::*;
 use crate::requests;
-use crate::{
-    AuthorizationToken, CosmosClient, HasHyperClient, IntoDatabaseClient, ResourceType,
-    WithDatabaseClient,
-};
+use crate::{AuthorizationToken, ResourceType};
 
 use azure_core::No;
 use http::request::Builder as RequestBuilder;
@@ -24,15 +21,15 @@ const VERSION: &str = "1.0";
 const TIME_FORMAT: &str = "%a, %d %h %Y %T GMT";
 
 #[derive(Debug, Clone)]
-pub struct CosmosStruct {
+pub struct CosmosClient {
     hyper_client: hyper::Client<HttpsConnector<hyper::client::HttpConnector>>,
     auth_token: AuthorizationToken,
     cloud_location: CloudLocation,
 }
 
-impl CosmosStruct {
-    /// Create a new `CosmosStruct` which connects to the account's instance in the public Azure cloud.
-    pub fn new(account: String, auth_token: AuthorizationToken) -> CosmosStruct {
+impl CosmosClient {
+    /// Create a new `CosmosClient` which connects to the account's instance in the public Azure cloud.
+    pub fn new(account: String, auth_token: AuthorizationToken) -> Self {
         let cloud_location = CloudLocation::Public(account);
         Self::new_with_cloud_location(cloud_location, auth_token)
     }
@@ -98,15 +95,11 @@ impl CosmosStruct {
             .header(HEADER_VERSION, HeaderValue::from_static(AZURE_VERSION))
             .header(header::AUTHORIZATION, signature)
     }
-}
 
-impl HasHyperClient for CosmosStruct {
     fn hyper_client(&self) -> &hyper::Client<HttpsConnector<hyper::client::HttpConnector>> {
         &self.hyper_client
     }
-}
 
-impl CosmosClient for CosmosStruct {
     fn create_database(&self) -> requests::CreateDatabaseBuilder<'_, No> {
         requests::CreateDatabaseBuilder::new(self)
     }
@@ -135,26 +128,9 @@ impl CosmosClient for CosmosStruct {
         };
         self.prepare_request_with_signature(uri_path, http_method, &time, &auth)
     }
-}
 
-impl<'a> IntoDatabaseClient<'a, Self, DatabaseStruct<'a, Self>> for CosmosStruct {
-    fn into_database_client<IntoCowStr>(self, database_name: IntoCowStr) -> DatabaseStruct<'a, Self>
-    where
-        IntoCowStr: Into<Cow<'a, str>>,
-    {
-        DatabaseStruct::new(Cow::Owned(self), database_name.into())
-    }
-}
-
-impl<'a> WithDatabaseClient<'a, Self, DatabaseStruct<'a, Self>> for CosmosStruct {
-    fn with_database_client<IntoCowStr>(
-        &'a self,
-        database_name: IntoCowStr,
-    ) -> DatabaseStruct<'a, Self>
-    where
-        IntoCowStr: Into<Cow<'a, str>>,
-    {
-        DatabaseStruct::new(Cow::Borrowed(self), database_name.into())
+    fn into_database_client(self, database_name: String) -> DatabaseClient {
+        DatabaseClient::new(self, database_name)
     }
 }
 
