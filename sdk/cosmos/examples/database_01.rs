@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let account = std::env::var("COSMOS_ACCOUNT").expect("Set env variable COSMOS_ACCOUNT first!");
 
     let authorization_token = AuthorizationToken::new_master(&master_key)?;
-    let cosmos_client = ClientBuilder::new(&account, authorization_token)?;
+    let cosmos_client = CosmosStruct::new(account, authorization_token);
     //let databases = cosmos_client.list_databases().execute().await?;
     //println!("databases == {:#?}", databases);
 

@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let authorization_token = AuthorizationToken::new_master(&master_key)?;
 
-    let client = ClientBuilder::new(account, authorization_token)?;
+    let client = CosmosStruct::new(account, authorization_token);
     let database_client = client.with_database_client(&database_name);
     let collection_client = database_client.with_collection_client(&collection_name);
     let user_client = database_client.with_user_client(&user_name);
@@ -70,10 +70,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "Replacing authorization_token with {:?}.",
         new_authorization_token
     );
-    let new_client = client.with_auth_token(new_authorization_token);
+    let mut client = client.clone();
+    client.with_auth_token(new_authorization_token);
 
     // let's list the documents with the new auth token
-    let list_documents_response = new_client
+    let list_documents_response = client
         .with_database_client(&database_name)
         .with_collection_client(&collection_name)
         .list_documents()
@@ -104,7 +105,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         document
     );
 
-    match new_client
+    match client
         .with_database_client(&database_name)
         .with_collection_client(&collection_name)
         .create_document()
@@ -140,11 +141,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "Replacing authorization_token with {:?}.",
         new_authorization_token
     );
-    let new_client = client.with_auth_token(new_authorization_token);
+    client.with_auth_token(new_authorization_token);
 
     // now we have an "All" authorization_token
     // so the create_document should succeed!
-    let create_document_response = new_client
+    let create_document_response = client
         .with_database_client(&database_name)
         .with_collection_client(&collection_name)
         .create_document()

@@ -47,7 +47,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let authorization_token = AuthorizationToken::new_master(&master_key)?;
 
     // Next we will create a Cosmos client.
-    let client = ClientBuilder::new(account, authorization_token)?;
+    let client = CosmosStruct::new(account, authorization_token);
     // We know the database so we can obtain a database client.
     let database_client = client.with_database_client(database_name);
     // We know the collection so we can obtain a collection client.

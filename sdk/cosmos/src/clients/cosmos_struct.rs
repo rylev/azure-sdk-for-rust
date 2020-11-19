@@ -5,10 +5,8 @@ use crate::{
     AuthorizationToken, CosmosClient, HasHyperClient, IntoDatabaseClient, ResourceType,
     WithDatabaseClient,
 };
-use azure_core::errors::AzureError;
+
 use azure_core::No;
-use base64;
-use chrono;
 use http::request::Builder as RequestBuilder;
 use hyper::{
     self,
@@ -16,189 +14,99 @@ use hyper::{
 };
 use hyper_rustls::HttpsConnector;
 use ring::hmac;
+use url::form_urlencoded;
+
 use std::borrow::Cow;
 use std::fmt::Debug;
-use url::form_urlencoded;
 
 const AZURE_VERSION: &str = "2018-12-31";
 const VERSION: &str = "1.0";
 const TIME_FORMAT: &str = "%a, %d %h %Y %T GMT";
 
-pub trait CosmosUriBuilder: Send + Sync {
-    fn build_base_uri(&self) -> &str;
-}
-
 #[derive(Debug, Clone)]
-pub struct CosmosStruct<'a, CUB>
-where
-    CUB: CosmosUriBuilder,
-{
+pub struct CosmosStruct {
     hyper_client: hyper::Client<HttpsConnector<hyper::client::HttpConnector>>,
-    account: Cow<'a, str>,
     auth_token: AuthorizationToken,
-    cosmos_uri_builder: CUB,
+    cloud_location: CloudLocation,
 }
 
-impl<'a, CUB> CosmosStruct<'a, CUB>
-where
-    CUB: CosmosUriBuilder + Clone,
-{
-    pub fn with_auth_token(&self, auth_token: AuthorizationToken) -> Self {
-        Self {
-            hyper_client: self.hyper_client.clone(),
-            account: self.account.clone(),
-            auth_token,
-            cosmos_uri_builder: self.cosmos_uri_builder.clone(),
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct DefaultCosmosUri {
-    uri: String,
-}
-
-impl DefaultCosmosUri {
-    fn new(account: &str) -> DefaultCosmosUri {
-        DefaultCosmosUri {
-            uri: format!("https://{}.documents.azure.com", account),
-        }
-    }
-}
-
-impl CosmosUriBuilder for DefaultCosmosUri {
-    fn build_base_uri(&self) -> &str {
-        &self.uri
-    }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct ChinaCosmosUri {
-    uri: String,
-}
-
-impl ChinaCosmosUri {
-    fn new(account: &str) -> ChinaCosmosUri {
-        ChinaCosmosUri {
-            uri: format!("https://{}.documents.azure.cn", account),
-        }
-    }
-}
-
-impl CosmosUriBuilder for ChinaCosmosUri {
-    fn build_base_uri(&self) -> &str {
-        &self.uri
-    }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct CustomCosmosUri {
-    uri: String,
-}
-
-impl CosmosUriBuilder for CustomCosmosUri {
-    #[inline]
-    fn build_base_uri(&self) -> &str {
-        &self.uri
-    }
-}
-
-pub struct ClientBuilder {}
-
-impl ClientBuilder {
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new<'a, IntoCowStr>(
-        account: IntoCowStr,
-        auth_token: AuthorizationToken,
-    ) -> Result<CosmosStruct<'a, DefaultCosmosUri>, AzureError>
-    where
-        IntoCowStr: Into<Cow<'a, str>>,
-    {
-        let account = account.into();
-        let client = hyper::Client::builder().build(HttpsConnector::new());
-        let cosmos_uri_builder = DefaultCosmosUri::new(account.as_ref());
-
-        Ok(CosmosStruct {
-            hyper_client: client,
-            account: account,
-            auth_token,
-            cosmos_uri_builder,
-        })
+impl CosmosStruct {
+    /// Create a new `CosmosStruct` which connects to the account's instance in the public Azure cloud.
+    pub fn new(account: String, auth_token: AuthorizationToken) -> CosmosStruct {
+        let cloud_location = CloudLocation::Public(account);
+        Self::new_with_cloud_location(cloud_location, auth_token)
     }
 
-    pub fn new_china<'a, IntoCowStr>(
-        account: IntoCowStr,
-        auth_token: AuthorizationToken,
-    ) -> Result<CosmosStruct<'a, ChinaCosmosUri>, AzureError>
-    where
-        IntoCowStr: Into<Cow<'a, str>>,
-    {
-        let account = account.into();
-        let client = hyper::Client::builder().build(HttpsConnector::new());
-        let cosmos_uri_builder = ChinaCosmosUri::new(account.as_ref());
-
-        Ok(CosmosStruct {
-            hyper_client: client,
-            account,
-            auth_token,
-            cosmos_uri_builder,
-        })
+    pub fn new_china(account: String, auth_token: AuthorizationToken) -> Self {
+        let cloud_location = CloudLocation::China(account);
+        Self::new_with_cloud_location(cloud_location, auth_token)
     }
 
-    pub fn new_custom<'a, IntoCowStr>(
-        account: IntoCowStr,
-        auth_token: AuthorizationToken,
-        uri: String,
-    ) -> Result<CosmosStruct<'a, CustomCosmosUri>, AzureError>
-    where
-        IntoCowStr: Into<Cow<'a, str>>,
-    {
-        let client = hyper::Client::builder().build(HttpsConnector::new());
-
-        Ok(CosmosStruct {
-            hyper_client: client,
-            account: account.into(),
-            auth_token,
-            cosmos_uri_builder: CustomCosmosUri { uri },
-        })
+    pub fn new_custom(account: String, auth_token: AuthorizationToken, uri: String) -> Self {
+        let cloud_location = CloudLocation::Custom { account, uri };
+        Self::new_with_cloud_location(cloud_location, auth_token)
     }
 
-    pub fn new_emulator(
-        address: &str,
-        port: u16,
-    ) -> Result<CosmosStruct<CustomCosmosUri>, AzureError> {
-        let client = hyper::Client::builder().build(HttpsConnector::new());
-
+    pub fn new_emulator(address: &str, port: u16) -> Self {
         //Account name: localhost:<port>
         //Account key: C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
         let auth_token = AuthorizationToken::new_master(
             "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
         ).unwrap();
-        Ok(CosmosStruct {
-            hyper_client: client,
-            account: Cow::Owned(format!("{}:{}", address, port)),
+        let uri = format!("https://{}:{}", address, port);
+        let cloud_location = CloudLocation::Custom {
+            account: String::from("Custom"),
+            uri,
+        };
+        Self::new_with_cloud_location(cloud_location, auth_token)
+    }
+
+    fn new_with_cloud_location(
+        cloud_location: CloudLocation,
+        auth_token: AuthorizationToken,
+    ) -> Self {
+        let hyper_client = hyper::Client::builder().build(HttpsConnector::new());
+
+        Self {
+            hyper_client,
             auth_token,
-            cosmos_uri_builder: CustomCosmosUri {
-                uri: format!("https://{}:{}", address, port),
-            },
-        })
+            cloud_location,
+        }
+    }
+
+    pub fn with_auth_token(&mut self, auth_token: AuthorizationToken) {
+        self.auth_token = auth_token;
+    }
+
+    fn prepare_request_with_signature(
+        &self,
+        uri_path: &str,
+        http_method: hyper::Method,
+        time: &str,
+        signature: &str,
+    ) -> RequestBuilder {
+        trace!("prepare_request::auth == {:?}", signature);
+        let uri = format!("{}/{}", self.cloud_location.url(), uri_path);
+        debug!(
+            "cosmos::client::prepare_request_with_resource_signature::uri == {:?}",
+            uri
+        );
+        hyper::Request::builder()
+            .method(http_method)
+            .uri(uri)
+            .header(HEADER_DATE, time)
+            .header(HEADER_VERSION, HeaderValue::from_static(AZURE_VERSION))
+            .header(header::AUTHORIZATION, signature)
     }
 }
 
-impl<'a, CUB> HasHyperClient for CosmosStruct<'a, CUB>
-where
-    CUB: CosmosUriBuilder + Debug,
-{
-    #[inline]
+impl HasHyperClient for CosmosStruct {
     fn hyper_client(&self) -> &hyper::Client<HttpsConnector<hyper::client::HttpConnector>> {
         &self.hyper_client
     }
 }
 
-impl<'a, CUB> CosmosClient for CosmosStruct<'a, CUB>
-where
-    CUB: CosmosUriBuilder + Debug,
-{
+impl CosmosClient for CosmosStruct {
     fn create_database(&self) -> requests::CreateDatabaseBuilder<'_, No> {
         requests::CreateDatabaseBuilder::new(self)
     }
@@ -207,7 +115,6 @@ where
         requests::ListDatabasesBuilder::new(self)
     }
 
-    #[inline]
     fn prepare_request(
         &self,
         uri_path: &str,
@@ -230,10 +137,7 @@ where
     }
 }
 
-impl<'a, CUB> IntoDatabaseClient<'a, Self, DatabaseStruct<'a, Self>> for CosmosStruct<'a, CUB>
-where
-    CUB: CosmosUriBuilder + Debug + Clone,
-{
+impl<'a> IntoDatabaseClient<'a, Self, DatabaseStruct<'a, Self>> for CosmosStruct {
     fn into_database_client<IntoCowStr>(self, database_name: IntoCowStr) -> DatabaseStruct<'a, Self>
     where
         IntoCowStr: Into<Cow<'a, str>>,
@@ -242,10 +146,7 @@ where
     }
 }
 
-impl<'a, CUB> WithDatabaseClient<'a, Self, DatabaseStruct<'a, Self>> for CosmosStruct<'a, CUB>
-where
-    CUB: CosmosUriBuilder + Debug + Clone,
-{
+impl<'a> WithDatabaseClient<'a, Self, DatabaseStruct<'a, Self>> for CosmosStruct {
     fn with_database_client<IntoCowStr>(
         &'a self,
         database_name: IntoCowStr,
@@ -276,33 +177,6 @@ where
 //    //    CreateDatabaseBuilder::new(self)
 //    //}
 //}
-
-impl<'a, CUB> CosmosStruct<'a, CUB>
-where
-    CUB: CosmosUriBuilder + Debug,
-{
-    #[inline]
-    fn prepare_request_with_signature(
-        &self,
-        uri_path: &str,
-        http_method: hyper::Method,
-        time: &str,
-        signature: &str,
-    ) -> RequestBuilder {
-        trace!("prepare_request::auth == {:?}", signature);
-        let uri = format!("{}/{}", self.cosmos_uri_builder.build_base_uri(), uri_path);
-        debug!(
-            "cosmos::client::prepare_request_with_resource_signature::uri == {:?}",
-            uri
-        );
-        hyper::Request::builder()
-            .method(http_method)
-            .uri(uri)
-            .header(HEADER_DATE, time)
-            .header(HEADER_VERSION, HeaderValue::from_static(AZURE_VERSION))
-            .header(header::AUTHORIZATION, signature)
-    }
-}
 
 fn generate_authorization(
     auth_token: &AuthorizationToken,
@@ -426,6 +300,32 @@ fn generate_resource_link(u: &str) -> &str {
         }
     }
     p
+}
+
+/// The cloud with which you want to interact.
+///
+/// All variants except for [`Custom`](CloudLocation::Custom) require the cosmos account name.
+/// `Custom` requires a valid base URL (e.g. https://custom.documents.azure.com)
+#[derive(Debug, Clone)]
+enum CloudLocation {
+    /// Azure public cloud
+    Public(String),
+    /// Azure China cloud
+    China(String),
+    // TODO: Other govt clouds?
+    /// A custom base URL
+    Custom { account: String, uri: String },
+}
+
+impl CloudLocation {
+    /// Consumes the location, returning a base URL
+    fn url(&self) -> String {
+        match self {
+            CloudLocation::Public(account) => format!("https://{}.documents.azure.com", account),
+            CloudLocation::China(account) => format!("https://{}.documents.azure.cn", account),
+            CloudLocation::Custom { uri, .. } => uri.clone(),
+        }
+    }
 }
 
 #[cfg(test)]

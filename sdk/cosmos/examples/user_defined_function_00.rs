@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let authorization_token = AuthorizationToken::new_master(&master_key)?;
 
-    let client = ClientBuilder::new(account, authorization_token)?;
+    let client = CosmosStruct::new(account, authorization_token);
     let database_client = client.with_database_client(&database);
     let collection_client = database_client.with_collection_client(&collection);
     let user_defined_function_client =

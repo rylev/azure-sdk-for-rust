@@ -9,7 +9,7 @@ pub fn initialize() -> Result<CosmosStruct<'static, DefaultCosmosUri>, AzureErro
         std::env::var("COSMOS_MASTER_KEY").expect("Set env variable COSMOS_MASTER_KEY first!");
 
     let authorization_token = AuthorizationToken::new_master(&key)?;
-    let client = ClientBuilder::new(account, authorization_token)?;
+    let client = CosmosStruct::new(account, authorization_token)(account, authorization_token)?;
 
     Ok(client)
 }
