@@ -13,7 +13,7 @@ pub struct CreateDatabaseBuilder<'a, DatabaseNameSet>
 where
     DatabaseNameSet: ToAssign,
 {
-    cosmos_client: &'a dyn CosmosClient,
+    cosmos_client: &'a CosmosClient,
     p_database_name: PhantomData<DatabaseNameSet>,
     database_name: Option<&'a dyn DatabaseName>,
     user_agent: Option<&'a str>,
@@ -22,7 +22,7 @@ where
 }
 
 impl<'a> CreateDatabaseBuilder<'a, No> {
-    pub(crate) fn new(cosmos_client: &'a dyn CosmosClient) -> CreateDatabaseBuilder<'a, No> {
+    pub(crate) fn new(cosmos_client: &'a CosmosClient) -> CreateDatabaseBuilder<'a, No> {
         CreateDatabaseBuilder {
             cosmos_client,
             p_database_name: PhantomData {},
@@ -38,7 +38,7 @@ impl<'a, DatabaseNameSet> CosmosClientRequired<'a> for CreateDatabaseBuilder<'a,
 where
     DatabaseNameSet: ToAssign,
 {
-    fn cosmos_client(&self) -> &'a dyn CosmosClient {
+    fn cosmos_client(&self) -> &'a CosmosClient {
         self.cosmos_client
     }
 }

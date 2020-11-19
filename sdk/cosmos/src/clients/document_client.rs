@@ -1,5 +1,6 @@
 use super::{AttachmentClient, CollectionClient, CosmosClient, DatabaseClient};
 use crate::requests;
+use crate::PartitionKeys;
 
 #[derive(Debug, Clone)]
 pub struct DocumentClient {
@@ -35,7 +36,7 @@ impl DocumentClient {
         self.collection_client().database_client()
     }
 
-    fn collection_client(&self) -> &COLL {
+    fn collection_client(&self) -> &CollectionClient {
         &self.collection_client
     }
 
@@ -47,15 +48,15 @@ impl DocumentClient {
         &self.partition_keys
     }
 
-    fn get_document(&self) -> requests::GetDocumentBuilder<'_, '_, C, D, COLL> {
+    fn get_document(&self) -> requests::GetDocumentBuilder<'_, '_> {
         requests::GetDocumentBuilder::new(self)
     }
 
-    fn delete_document(&self) -> requests::DeleteDocumentBuilder<'_, C, D, COLL> {
+    fn delete_document(&self) -> requests::DeleteDocumentBuilder<'_> {
         requests::DeleteDocumentBuilder::new(self)
     }
 
-    fn list_attachments(&self) -> requests::ListAttachmentsBuilder<'_, '_, C, D, COLL> {
+    fn list_attachments(&self) -> requests::ListAttachmentsBuilder<'_, '_> {
         requests::ListAttachmentsBuilder::new(self)
     }
 

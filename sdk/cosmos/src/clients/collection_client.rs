@@ -36,49 +36,47 @@ impl CollectionClient {
         &self.collection_name
     }
 
-    fn get_collection(&self) -> requests::GetCollectionBuilder<'_, C, D> {
+    fn get_collection(&self) -> requests::GetCollectionBuilder<'_> {
         requests::GetCollectionBuilder::new(self)
     }
 
-    fn delete_collection(&self) -> requests::DeleteCollectionBuilder<'_, C, D> {
+    fn delete_collection(&self) -> requests::DeleteCollectionBuilder<'_> {
         requests::DeleteCollectionBuilder::new(self)
     }
 
-    fn replace_collection(&self) -> requests::ReplaceCollectionBuilder<'_, '_, C, D, No, No> {
+    fn replace_collection(&self) -> requests::ReplaceCollectionBuilder<'_, '_, No, No> {
         requests::ReplaceCollectionBuilder::new(self)
     }
 
-    fn list_documents(&self) -> requests::ListDocumentsBuilder<'_, '_, C, D> {
+    fn list_documents(&self) -> requests::ListDocumentsBuilder<'_, '_> {
         requests::ListDocumentsBuilder::new(self)
     }
 
-    fn create_document(&self) -> requests::CreateDocumentBuilder<'_, '_, C, D, No> {
+    fn create_document(&self) -> requests::CreateDocumentBuilder<'_, '_, No> {
         requests::CreateDocumentBuilder::new(self)
     }
 
-    fn replace_document(&self) -> requests::ReplaceDocumentBuilder<'_, '_, C, D, No, No> {
+    fn replace_document(&self) -> requests::ReplaceDocumentBuilder<'_, '_, No, No> {
         requests::ReplaceDocumentBuilder::new(self)
     }
 
-    fn query_documents(&self) -> requests::QueryDocumentsBuilder<'_, '_, C, D, No> {
+    fn query_documents(&self) -> requests::QueryDocumentsBuilder<'_, '_, No> {
         requests::QueryDocumentsBuilder::new(self)
     }
 
-    fn list_stored_procedures(&self) -> requests::ListStoredProceduresBuilder<'_, '_, C, D> {
+    fn list_stored_procedures(&self) -> requests::ListStoredProceduresBuilder<'_, '_> {
         requests::ListStoredProceduresBuilder::new(self)
     }
 
-    fn list_user_defined_functions(
-        &self,
-    ) -> requests::ListUserDefinedFunctionsBuilder<'_, '_, C, D> {
+    fn list_user_defined_functions(&self) -> requests::ListUserDefinedFunctionsBuilder<'_, '_> {
         requests::ListUserDefinedFunctionsBuilder::new(self)
     }
 
-    fn list_triggers(&self) -> requests::ListTriggersBuilder<'_, '_, C, D> {
+    fn list_triggers(&self) -> requests::ListTriggersBuilder<'_, '_> {
         requests::ListTriggersBuilder::new(self)
     }
 
-    fn get_partition_key_ranges(&self) -> requests::GetPartitionKeyRangesBuilder<'_, '_, C, D> {
+    fn get_partition_key_ranges(&self) -> requests::GetPartitionKeyRangesBuilder<'_, '_> {
         requests::GetPartitionKeyRangesBuilder::new(self)
     }
 
@@ -90,18 +88,15 @@ impl CollectionClient {
         DocumentClient::new(self, document_name, partition_keys)
     }
 
-    fn into_trigger_client<IntoCowStr>(
-        self,
-        trigger_name: String,
-    ) -> TriggerStruct<'a, C, D, Self> {
-        TriggerStruct::new(Cow::Owned(self), trigger_name.into())
+    fn into_trigger_client(self, trigger_name: String) -> TriggerClient {
+        TriggerClient::new(self, trigger_name)
     }
 
     fn into_user_defined_function_client(
         self,
         user_defined_function_name: String,
-    ) -> UserDefinedFunctionStruct<'a, C, D, Self> {
-        UserDefinedFunctionStruct::new(Cow::Owned(self), user_defined_function_name.into())
+    ) -> UserDefinedFunctionClient {
+        UserDefinedFunctionClient::new(self, user_defined_function_name)
     }
 
     fn into_stored_procedure_client(self, stored_procedure_name: String) -> StoredProcedureClient {

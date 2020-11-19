@@ -43,19 +43,17 @@ impl UserDefinedFunctionClient {
 
     fn create_user_defined_function(
         &self,
-    ) -> requests::CreateOrReplaceUserDefinedFunctionBuilder<'_, '_, C, D, COLL, No> {
+    ) -> requests::CreateOrReplaceUserDefinedFunctionBuilder<'_, '_, No> {
         requests::CreateOrReplaceUserDefinedFunctionBuilder::new(self, true)
     }
 
     fn replace_user_defined_function(
         &self,
-    ) -> requests::CreateOrReplaceUserDefinedFunctionBuilder<'_, '_, C, D, COLL, No> {
+    ) -> requests::CreateOrReplaceUserDefinedFunctionBuilder<'_, '_, No> {
         requests::CreateOrReplaceUserDefinedFunctionBuilder::new(self, false)
     }
 
-    fn delete_user_defined_function(
-        &self,
-    ) -> requests::DeleteUserDefinedFunctionBuilder<'_, '_, C, D, COLL> {
+    fn delete_user_defined_function(&self) -> requests::DeleteUserDefinedFunctionBuilder<'_, '_> {
         requests::DeleteUserDefinedFunctionBuilder::new(self)
     }
 }

@@ -1,4 +1,4 @@
-use super::CollectionClient;
+use super::*;
 use crate::requests;
 use azure_core::No;
 
@@ -30,7 +30,7 @@ impl StoredProcedureClient {
         self.collection_client.database_client()
     }
 
-    fn collection_client(&self) -> &COLL {
+    fn collection_client(&self) -> &CollectionClient {
         &self.collection_client
     }
 
@@ -38,27 +38,19 @@ impl StoredProcedureClient {
         &self.stored_procedure_name
     }
 
-    fn create_stored_procedure(
-        &self,
-    ) -> requests::CreateStoredProcedureBuilder<'_, '_, C, D, COLL, No> {
+    fn create_stored_procedure(&self) -> requests::CreateStoredProcedureBuilder<'_, '_, No> {
         requests::CreateStoredProcedureBuilder::new(self)
     }
 
-    fn replace_stored_procedure(
-        &self,
-    ) -> requests::ReplaceStoredProcedureBuilder<'_, '_, C, D, COLL, No> {
+    fn replace_stored_procedure(&self) -> requests::ReplaceStoredProcedureBuilder<'_, '_, No> {
         requests::ReplaceStoredProcedureBuilder::new(self)
     }
 
-    fn execute_stored_procedure(
-        &self,
-    ) -> requests::ExecuteStoredProcedureBuilder<'_, '_, C, D, COLL> {
+    fn execute_stored_procedure(&self) -> requests::ExecuteStoredProcedureBuilder<'_, '_> {
         requests::ExecuteStoredProcedureBuilder::new(self)
     }
 
-    fn delete_stored_procedure(
-        &self,
-    ) -> requests::DeleteStoredProcedureBuilder<'_, '_, C, D, COLL> {
+    fn delete_stored_procedure(&self) -> requests::DeleteStoredProcedureBuilder<'_, '_> {
         requests::DeleteStoredProcedureBuilder::new(self)
     }
 }

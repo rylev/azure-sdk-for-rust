@@ -37,19 +37,15 @@ impl TriggerClient {
         &self.trigger_name
     }
 
-    fn create_trigger(
-        &self,
-    ) -> requests::CreateOrReplaceTriggerBuilder<'_, C, D, COLL, No, No, No> {
+    fn create_trigger(&self) -> requests::CreateOrReplaceTriggerBuilder<'_, No, No, No> {
         requests::CreateOrReplaceTriggerBuilder::new(self, true)
     }
 
-    fn replace_trigger(
-        &self,
-    ) -> requests::CreateOrReplaceTriggerBuilder<'_, C, D, COLL, No, No, No> {
+    fn replace_trigger(&self) -> requests::CreateOrReplaceTriggerBuilder<'_, No, No, No> {
         requests::CreateOrReplaceTriggerBuilder::new(self, false)
     }
 
-    fn delete_trigger(&self) -> requests::DeleteTriggerBuilder<'_, '_, C, D, COLL> {
+    fn delete_trigger(&self) -> requests::DeleteTriggerBuilder<'_, '_> {
         requests::DeleteTriggerBuilder::new(self)
     }
 }

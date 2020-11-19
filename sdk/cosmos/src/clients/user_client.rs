@@ -34,23 +34,23 @@ impl UserClient {
         &self.user_name
     }
 
-    fn create_user(&self) -> requests::CreateUserBuilder<'_, '_, C, D> {
+    fn create_user(&self) -> requests::CreateUserBuilder<'_, '_> {
         requests::CreateUserBuilder::new(self)
     }
 
-    fn get_user(&self) -> requests::GetUserBuilder<'_, '_, C, D> {
+    fn get_user(&self) -> requests::GetUserBuilder<'_, '_> {
         requests::GetUserBuilder::new(self)
     }
 
-    fn replace_user(&self) -> requests::ReplaceUserBuilder<'_, '_, C, D, No> {
+    fn replace_user(&self) -> requests::ReplaceUserBuilder<'_, '_, No> {
         requests::ReplaceUserBuilder::new(self)
     }
 
-    fn delete_user(&self) -> requests::DeleteUserBuilder<'_, '_, C, D> {
+    fn delete_user(&self) -> requests::DeleteUserBuilder<'_, '_> {
         requests::DeleteUserBuilder::new(self)
     }
 
-    fn list_permissions(&self) -> requests::ListPermissionsBuilder<'_, '_, C, D> {
+    fn list_permissions(&self) -> requests::ListPermissionsBuilder<'_, '_> {
         requests::ListPermissionsBuilder::new(self)
     }
 

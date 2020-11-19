@@ -1,14 +1,13 @@
-use crate::requests;
 use super::*;
+use crate::requests;
 
 #[derive(Debug, Clone)]
-pub struct PermissionClient
-{
-    user_client: UserClient;
+pub struct PermissionClient {
+    user_client: UserClient,
     permission_name: String,
 }
 
-impl PermissionStruct {
+impl PermissionClient {
     pub(crate) fn new(user_client: UserClient, permission_name: String) -> Self {
         Self {
             user_client,
@@ -29,7 +28,7 @@ impl PermissionStruct {
     fn database_client(&self) -> &DatabaseClient {
         self.user_client.database_client()
     }
-    
+
     fn user_client(&self) -> &UserClient {
         &self.user_client
     }
@@ -38,19 +37,19 @@ impl PermissionStruct {
         &self.permission_name
     }
 
-    fn create_permission(&self) -> requests::CreatePermissionBuilder<'_, '_, C, D, USER> {
+    fn create_permission(&self) -> requests::CreatePermissionBuilder<'_, '_> {
         requests::CreatePermissionBuilder::new(self)
     }
 
-    fn replace_permission(&self) -> requests::ReplacePermissionBuilder<'_, '_, C, D, USER> {
+    fn replace_permission(&self) -> requests::ReplacePermissionBuilder<'_, '_> {
         requests::ReplacePermissionBuilder::new(self)
     }
 
-    fn get_permission(&self) -> requests::GetPermissionBuilder<'_, '_, C, D, USER> {
+    fn get_permission(&self) -> requests::GetPermissionBuilder<'_, '_> {
         requests::GetPermissionBuilder::new(self)
     }
 
-    fn delete_permission(&self) -> requests::DeletePermissionsBuilder<'_, '_, C, D, USER> {
+    fn delete_permission(&self) -> requests::DeletePermissionsBuilder<'_, '_> {
         requests::DeletePermissionsBuilder::new(self)
     }
 }
