@@ -16,7 +16,7 @@ where
     if_match_condition: Option<IfMatchCondition<'b>>,
     user_agent: Option<&'b str>,
     activity_id: Option<&'b str>,
-    consistency_level: Option<ConsistencyLevel<'b>>,
+    consistency_level: Option<ConsistencyLevel>,
 }
 
 impl<'a, 'b, C, D, COLL, DOC> GetAttachmentBuilder<'a, 'b, C, D, COLL, DOC>
@@ -106,7 +106,7 @@ where
     DOC: DocumentClient<C, D, COLL>,
 {
     #[inline]
-    fn consistency_level(&self) -> Option<ConsistencyLevel<'b>> {
+    fn consistency_level(&self) -> Option<ConsistencyLevel> {
         self.consistency_level.clone()
     }
 }
@@ -187,7 +187,7 @@ where
     type O = GetAttachmentBuilder<'a, 'b, C, D, COLL, DOC>;
 
     #[inline]
-    fn with_consistency_level(self, consistency_level: ConsistencyLevel<'b>) -> Self::O {
+    fn with_consistency_level(self, consistency_level: ConsistencyLevel) -> Self::O {
         GetAttachmentBuilder {
             attachment_client: self.attachment_client,
             if_match_condition: self.if_match_condition,

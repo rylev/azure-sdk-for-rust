@@ -18,7 +18,7 @@ where
     parameters: Option<&'b Parameters>,
     user_agent: Option<&'b str>,
     activity_id: Option<&'b str>,
-    consistency_level: Option<ConsistencyLevel<'b>>,
+    consistency_level: Option<ConsistencyLevel>,
     allow_tentative_writes: bool,
     partition_keys: Option<&'b PartitionKeys>,
 }
@@ -105,7 +105,7 @@ where
     COLL: CollectionClient<C, D>,
 {
     #[inline]
-    fn consistency_level(&self) -> Option<ConsistencyLevel<'b>> {
+    fn consistency_level(&self) -> Option<ConsistencyLevel> {
         self.consistency_level.clone()
     }
 }
@@ -212,7 +212,7 @@ where
     type O = ExecuteStoredProcedureBuilder<'a, 'b, C, D, COLL>;
 
     #[inline]
-    fn with_consistency_level(self, consistency_level: ConsistencyLevel<'b>) -> Self::O {
+    fn with_consistency_level(self, consistency_level: ConsistencyLevel) -> Self::O {
         ExecuteStoredProcedureBuilder {
             stored_procedure_client: self.stored_procedure_client,
             parameters: self.parameters,

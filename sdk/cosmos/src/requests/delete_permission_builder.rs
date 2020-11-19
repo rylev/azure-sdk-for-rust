@@ -15,7 +15,7 @@ where
     permission_client: &'a dyn PermissionClient<C, D, USER>,
     user_agent: Option<&'b str>,
     activity_id: Option<&'b str>,
-    consistency_level: Option<ConsistencyLevel<'b>>,
+    consistency_level: Option<ConsistencyLevel>,
 }
 
 impl<'a, 'b, C, D, USER> DeletePermissionsBuilder<'a, 'b, C, D, USER>
@@ -84,7 +84,7 @@ where
     USER: UserClient<C, D>,
 {
     #[inline]
-    fn consistency_level(&self) -> Option<ConsistencyLevel<'b>> {
+    fn consistency_level(&self) -> Option<ConsistencyLevel> {
         self.consistency_level.clone()
     }
 }
@@ -137,7 +137,7 @@ where
     type O = DeletePermissionsBuilder<'a, 'b, C, D, USER>;
 
     #[inline]
-    fn with_consistency_level(self, consistency_level: ConsistencyLevel<'b>) -> Self::O {
+    fn with_consistency_level(self, consistency_level: ConsistencyLevel) -> Self::O {
         DeletePermissionsBuilder {
             permission_client: self.permission_client,
             user_agent: self.user_agent,
