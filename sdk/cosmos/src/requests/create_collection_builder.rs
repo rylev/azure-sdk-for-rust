@@ -41,7 +41,17 @@ impl<'a> CreateCollectionBuilder<'a, No, No, No, No> {
     pub(crate) fn new(database_client: &'a DatabaseClient) -> Self {
         Self {
             database_client,
-            ..Default::default()
+            p_offer: PhantomData {},
+            offer: None,
+            p_collection_name: PhantomData {},
+            collection_name: None,
+            p_indexing_policy: PhantomData {},
+            indexing_policy: None,
+            p_partition_key: PhantomData {},
+            partition_key: None,
+            user_agent: None,
+            activity_id: None,
+            consistency_level: None,
         }
     }
 }
@@ -160,9 +170,19 @@ where
         CreateCollectionBuilder<'a, Yes, CollectionNameSet, IndexingPolicySet, PartitionKeySet>;
 
     fn with_offer(self, offer: Offer) -> Self::O {
-        Self {
+        CreateCollectionBuilder {
             database_client: self.database_client,
-            ..self
+            p_offer: PhantomData {},
+            p_collection_name: PhantomData {},
+            p_indexing_policy: PhantomData {},
+            p_partition_key: PhantomData {},
+            offer: Some(offer),
+            collection_name: self.collection_name,
+            indexing_policy: self.indexing_policy,
+            partition_key: self.partition_key,
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
         }
     }
 }
@@ -177,9 +197,19 @@ where
     type O = CreateCollectionBuilder<'a, OfferSet, Yes, IndexingPolicySet, PartitionKeySet>;
 
     fn with_collection_name(self, collection_name: &'a dyn CollectionName) -> Self::O {
-        Self {
+        CreateCollectionBuilder {
             database_client: self.database_client,
-            ..self
+            p_offer: PhantomData {},
+            p_collection_name: PhantomData {},
+            p_indexing_policy: PhantomData {},
+            p_partition_key: PhantomData {},
+            offer: self.offer,
+            collection_name: Some(collection_name),
+            indexing_policy: self.indexing_policy,
+            partition_key: self.partition_key,
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
         }
     }
 }
@@ -194,9 +224,19 @@ where
     type O = CreateCollectionBuilder<'a, OfferSet, CollectionNameSet, Yes, PartitionKeySet>;
 
     fn with_indexing_policy(self, indexing_policy: &'a IndexingPolicy) -> Self::O {
-        Self {
+        CreateCollectionBuilder {
+            database_client: self.database_client,
+            p_offer: PhantomData {},
+            p_collection_name: PhantomData {},
+            p_indexing_policy: PhantomData {},
+            p_partition_key: PhantomData {},
+            offer: self.offer,
+            collection_name: self.collection_name,
             indexing_policy: Some(indexing_policy),
-            ..self
+            partition_key: self.partition_key,
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
         }
     }
 }
@@ -211,9 +251,19 @@ where
     type O = CreateCollectionBuilder<'a, OfferSet, CollectionNameSet, IndexingPolicySet, Yes>;
 
     fn with_partition_key(self, partition_key: &'a PartitionKey) -> Self::O {
-        Self {
+        CreateCollectionBuilder {
+            database_client: self.database_client,
+            p_offer: PhantomData {},
+            p_collection_name: PhantomData {},
+            p_indexing_policy: PhantomData {},
+            p_partition_key: PhantomData {},
+            offer: self.offer,
+            collection_name: self.collection_name,
+            indexing_policy: self.indexing_policy,
             partition_key: Some(partition_key),
-            ..self
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
         }
     }
 }

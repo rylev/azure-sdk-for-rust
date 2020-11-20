@@ -29,7 +29,11 @@ impl<'a, 'b> CreateOrReplaceUserDefinedFunctionBuilder<'a, 'b, No> {
         Self {
             user_defined_function_client,
             is_create,
-            ..Default::default()
+            p_body: PhantomData {},
+            body: None,
+            user_agent: None,
+            activity_id: None,
+            consistency_level: None,
         }
     }
 }
@@ -89,9 +93,14 @@ impl<'a, 'b> UserDefinedFunctionBodySupport<'b>
     type O = CreateOrReplaceUserDefinedFunctionBuilder<'a, 'b, Yes>;
 
     fn with_body(self, body: &'b str) -> Self::O {
-        Self {
+        CreateOrReplaceUserDefinedFunctionBuilder {
+            user_defined_function_client: self.user_defined_function_client,
+            is_create: self.is_create,
+            p_body: PhantomData {},
             body: Some(body),
-            ..self
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
         }
     }
 }

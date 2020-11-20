@@ -21,8 +21,11 @@ impl<'a, 'b> ListUsersBuilder<'a, 'b> {
     pub(crate) fn new(database_client: &'a DatabaseClient) -> Self {
         Self {
             database_client,
+            user_agent: None,
+            activity_id: None,
+            consistency_level: None,
+            continuation: None,
             max_item_count: -1,
-            ..Default::default()
         }
     }
 }

@@ -22,10 +22,10 @@ where
 }
 
 impl<'a> CreateDatabaseBuilder<'a, No> {
-    pub(crate) fn new(cosmos_client: &'a CosmosClient) -> CreateDatabaseBuilder<'a, No> {
-        CreateDatabaseBuilder {
+    pub(crate) fn new(cosmos_client: &'a CosmosClient) -> Self {
+        Self {
             cosmos_client,
-            p_database_name: PhantomData {},
+            p_database_name: PhantomData,
             database_name: None,
             user_agent: None,
             activity_id: None,

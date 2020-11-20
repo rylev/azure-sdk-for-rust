@@ -33,9 +33,15 @@ impl<'a> CreateOrReplaceTriggerBuilder<'a, No, No, No> {
         Self {
             trigger_client,
             is_create,
+            p_trigger_operation: PhantomData {},
             trigger_operation: TriggerOperation::All,
+            p_trigger_type: PhantomData {},
             trigger_type: TriggerType::Pre,
-            ..Default::default()
+            p_body: PhantomData {},
+            body: None,
+            user_agent: None,
+            activity_id: None,
+            consistency_level: None,
         }
     }
 }
@@ -131,9 +137,18 @@ where
     type O = CreateOrReplaceTriggerBuilder<'a, Yes, TriggerTypeSet, BodySet>;
 
     fn with_trigger_operation(self, trigger_operation: TriggerOperation) -> Self::O {
-        Self {
+        CreateOrReplaceTriggerBuilder {
+            trigger_client: self.trigger_client,
+            is_create: self.is_create,
+            p_trigger_operation: PhantomData {},
+            p_trigger_type: PhantomData {},
+            p_body: PhantomData {},
             trigger_operation,
-            ..self
+            trigger_type: self.trigger_type,
+            body: self.body,
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
         }
     }
 }
@@ -147,9 +162,18 @@ where
     type O = CreateOrReplaceTriggerBuilder<'a, TriggerOperationSet, Yes, BodySet>;
 
     fn with_trigger_type(self, trigger_type: TriggerType) -> Self::O {
-        Self {
+        CreateOrReplaceTriggerBuilder {
+            trigger_client: self.trigger_client,
+            is_create: self.is_create,
+            p_trigger_operation: PhantomData {},
+            p_trigger_type: PhantomData {},
+            p_body: PhantomData {},
+            trigger_operation: self.trigger_operation,
             trigger_type,
-            ..self
+            body: self.body,
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
         }
     }
 }
@@ -163,9 +187,18 @@ where
     type O = CreateOrReplaceTriggerBuilder<'a, TriggerOperationSet, TriggerTypeSet, Yes>;
 
     fn with_body(self, body: &'a str) -> Self::O {
-        Self {
+        CreateOrReplaceTriggerBuilder {
+            trigger_client: self.trigger_client,
+            is_create: self.is_create,
+            p_trigger_operation: PhantomData {},
+            p_trigger_type: PhantomData {},
+            p_body: PhantomData {},
+            trigger_operation: self.trigger_operation,
+            trigger_type: self.trigger_type,
             body: Some(body),
-            ..self
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
         }
     }
 }

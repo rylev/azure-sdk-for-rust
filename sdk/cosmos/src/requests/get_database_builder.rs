@@ -17,7 +17,9 @@ impl<'a, 'b> GetDatabaseBuilder<'a, 'b> {
     pub(crate) fn new(database_client: &'a DatabaseClient) -> Self {
         Self {
             database_client,
-            ..Default::default()
+            user_agent: None,
+            activity_id: None,
+            consistency_level: None,
         }
     }
 }

@@ -1,5 +1,6 @@
 use super::*;
 use crate::requests;
+use crate::ResourceType;
 use azure_core::No;
 
 #[derive(Debug, Clone)]
@@ -16,45 +17,61 @@ impl DatabaseClient {
         }
     }
 
-    fn hyper_client(
+    pub fn hyper_client(
         &self,
     ) -> &hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
         self.cosmos_client().hyper_client()
     }
 
-    fn cosmos_client(&self) -> &CosmosClient {
+    pub fn cosmos_client(&self) -> &CosmosClient {
         &self.cosmos_client
     }
 
-    fn database_name(&self) -> &str {
+    pub fn database_name(&self) -> &str {
         &self.database_name
     }
 
-    fn list_collections(&self) -> requests::ListCollectionsBuilder<'_> {
+    pub fn list_collections(&self) -> requests::ListCollectionsBuilder<'_> {
         requests::ListCollectionsBuilder::new(self)
     }
 
-    fn get_database(&self) -> requests::GetDatabaseBuilder<'_, '_> {
+    pub fn get_database(&self) -> requests::GetDatabaseBuilder<'_, '_> {
         requests::GetDatabaseBuilder::new(self)
     }
 
-    fn delete_database(&self) -> requests::DeleteDatabaseBuilder<'_> {
+    pub fn delete_database(&self) -> requests::DeleteDatabaseBuilder<'_> {
         requests::DeleteDatabaseBuilder::new(self)
     }
 
-    fn create_collection(&self) -> requests::CreateCollectionBuilder<'_, No, No, No, No> {
+    pub fn create_collection(&self) -> requests::CreateCollectionBuilder<'_, No, No, No, No> {
         requests::CreateCollectionBuilder::new(self)
     }
 
-    fn list_users(&self) -> requests::ListUsersBuilder<'_, '_> {
+    pub fn list_users(&self) -> requests::ListUsersBuilder<'_, '_> {
         requests::ListUsersBuilder::new(self)
     }
 
-    fn into_collection_client<IntoCowStr>(self, collection_name: String) -> CollectionClient {
+    pub fn into_collection_client<IntoCowStr>(self, collection_name: String) -> CollectionClient {
         CollectionClient::new(self, collection_name)
     }
 
-    fn into_user_client<IntoCowStr>(self, user_name: IntoCowStr) -> UserClient {
+    pub fn into_user_client(self, user_name: String) -> UserClient {
         UserClient::new(self, user_name)
+    }
+
+    pub fn prepare_request(&self, method: hyper::Method) -> http::request::Builder {
+        self.cosmos_client()
+            .prepare_request("dbs", method, ResourceType::Databases)
+    }
+
+    pub fn prepare_request_with_database_name(
+        &self,
+        method: hyper::Method,
+    ) -> http::request::Builder {
+        self.cosmos_client().prepare_request(
+            &format!("dbs/{}", self.database_name()),
+            method,
+            ResourceType::Databases,
+        )
     }
 }

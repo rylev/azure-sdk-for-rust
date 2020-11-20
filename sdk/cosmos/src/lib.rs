@@ -83,7 +83,7 @@ pub enum ResourceType {
 }
 
 pub trait CosmosClientRequired<'a> {
-    fn cosmos_client(&'a self) -> &'a dyn CosmosClient;
+    fn cosmos_client(&'a self) -> &'a CosmosClient;
 }
 
 pub trait DatabaseRequired<'a> {

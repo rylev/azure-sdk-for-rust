@@ -32,8 +32,16 @@ impl<'a, 'b> CreateDocumentBuilder<'a, 'b, No> {
     pub(crate) fn new(collection_client: &'a CollectionClient) -> Self {
         Self {
             collection_client,
+            p_partition_keys: PhantomData {},
+            partition_keys: None,
+            is_upsert: false,
             indexing_directive: IndexingDirective::Default,
-            ..Default::default()
+            if_match_condition: None,
+            if_modified_since: None,
+            user_agent: None,
+            activity_id: None,
+            consistency_level: None,
+            allow_tentative_writes: false,
         }
     }
 }
@@ -140,9 +148,18 @@ impl<'a, 'b> PartitionKeysSupport<'b> for CreateDocumentBuilder<'a, 'b, No> {
     type O = CreateDocumentBuilder<'a, 'b, Yes>;
 
     fn with_partition_keys(self, partition_keys: &'b PartitionKeys) -> Self::O {
-        Self {
+        CreateDocumentBuilder {
+            collection_client: self.collection_client,
+            p_partition_keys: PhantomData {},
             partition_keys: Some(partition_keys),
-            ..self
+            is_upsert: self.is_upsert,
+            indexing_directive: self.indexing_directive,
+            if_match_condition: self.if_match_condition,
+            if_modified_since: self.if_modified_since,
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
+            allow_tentative_writes: self.allow_tentative_writes,
         }
     }
 }

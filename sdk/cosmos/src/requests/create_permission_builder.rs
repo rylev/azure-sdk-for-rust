@@ -21,7 +21,9 @@ impl<'a, 'b> CreatePermissionBuilder<'a, 'b> {
         Self {
             permission_client,
             expiry_seconds: 3600,
-            ..Default::default()
+            user_agent: None,
+            activity_id: None,
+            consistency_level: None,
         }
     }
 }

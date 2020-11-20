@@ -1,5 +1,5 @@
 use super::*;
-use crate::requests;
+use crate::{requests, ResourceType};
 
 #[derive(Debug, Clone)]
 pub struct PermissionClient {
@@ -15,41 +15,69 @@ impl PermissionClient {
         }
     }
 
-    fn hyper_client(
+    pub fn hyper_client(
         &self,
     ) -> &hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
         self.user_client.hyper_client()
     }
 
-    fn cosmos_client(&self) -> &CosmosClient {
+    pub fn cosmos_client(&self) -> &CosmosClient {
         self.user_client.cosmos_client()
     }
 
-    fn database_client(&self) -> &DatabaseClient {
+    pub fn database_client(&self) -> &DatabaseClient {
         self.user_client.database_client()
     }
 
-    fn user_client(&self) -> &UserClient {
+    pub fn user_client(&self) -> &UserClient {
         &self.user_client
     }
 
-    fn permission_name(&self) -> &str {
+    pub fn permission_name(&self) -> &str {
         &self.permission_name
     }
 
-    fn create_permission(&self) -> requests::CreatePermissionBuilder<'_, '_> {
+    pub fn create_permission(&self) -> requests::CreatePermissionBuilder<'_, '_> {
         requests::CreatePermissionBuilder::new(self)
     }
 
-    fn replace_permission(&self) -> requests::ReplacePermissionBuilder<'_, '_> {
+    pub fn replace_permission(&self) -> requests::ReplacePermissionBuilder<'_, '_> {
         requests::ReplacePermissionBuilder::new(self)
     }
 
-    fn get_permission(&self) -> requests::GetPermissionBuilder<'_, '_> {
+    pub fn get_permission(&self) -> requests::GetPermissionBuilder<'_, '_> {
         requests::GetPermissionBuilder::new(self)
     }
 
-    fn delete_permission(&self) -> requests::DeletePermissionsBuilder<'_, '_> {
+    pub fn delete_permission(&self) -> requests::DeletePermissionsBuilder<'_, '_> {
         requests::DeletePermissionsBuilder::new(self)
+    }
+
+    pub fn prepare_request(&self, method: hyper::Method) -> http::request::Builder {
+        self.cosmos_client().prepare_request(
+            &format!(
+                "dbs/{}/users/{}/permissions",
+                self.database_client().database_name(),
+                self.user_client().user_name()
+            ),
+            method,
+            ResourceType::Permissions,
+        )
+    }
+
+    pub fn prepare_request_with_permission_name(
+        &self,
+        method: hyper::Method,
+    ) -> http::request::Builder {
+        self.cosmos_client().prepare_request(
+            &format!(
+                "dbs/{}/users/{}/permissions/{}",
+                self.database_client().database_name(),
+                self.user_client().user_name(),
+                self.permission_name()
+            ),
+            method,
+            ResourceType::Permissions,
+        )
     }
 }

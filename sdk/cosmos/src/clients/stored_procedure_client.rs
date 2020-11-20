@@ -1,5 +1,6 @@
 use super::*;
 use crate::requests;
+use crate::ResourceType;
 use azure_core::No;
 
 #[derive(Debug, Clone)]
@@ -16,41 +17,69 @@ impl StoredProcedureClient {
         }
     }
 
-    fn hyper_client(
+    pub fn hyper_client(
         &self,
     ) -> &hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
         self.collection_client.hyper_client()
     }
 
-    fn cosmos_client(&self) -> &CosmosClient {
+    pub fn cosmos_client(&self) -> &CosmosClient {
         self.collection_client.cosmos_client()
     }
 
-    fn database_client(&self) -> &DatabaseClient {
+    pub fn database_client(&self) -> &DatabaseClient {
         self.collection_client.database_client()
     }
 
-    fn collection_client(&self) -> &CollectionClient {
+    pub fn collection_client(&self) -> &CollectionClient {
         &self.collection_client
     }
 
-    fn stored_procedure_name(&self) -> &str {
+    pub fn stored_procedure_name(&self) -> &str {
         &self.stored_procedure_name
     }
 
-    fn create_stored_procedure(&self) -> requests::CreateStoredProcedureBuilder<'_, '_, No> {
+    pub fn create_stored_procedure(&self) -> requests::CreateStoredProcedureBuilder<'_, '_, No> {
         requests::CreateStoredProcedureBuilder::new(self)
     }
 
-    fn replace_stored_procedure(&self) -> requests::ReplaceStoredProcedureBuilder<'_, '_, No> {
+    pub fn replace_stored_procedure(&self) -> requests::ReplaceStoredProcedureBuilder<'_, '_, No> {
         requests::ReplaceStoredProcedureBuilder::new(self)
     }
 
-    fn execute_stored_procedure(&self) -> requests::ExecuteStoredProcedureBuilder<'_, '_> {
+    pub fn execute_stored_procedure(&self) -> requests::ExecuteStoredProcedureBuilder<'_, '_> {
         requests::ExecuteStoredProcedureBuilder::new(self)
     }
 
-    fn delete_stored_procedure(&self) -> requests::DeleteStoredProcedureBuilder<'_, '_> {
+    pub fn delete_stored_procedure(&self) -> requests::DeleteStoredProcedureBuilder<'_, '_> {
         requests::DeleteStoredProcedureBuilder::new(self)
+    }
+
+    pub fn prepare_request(&self, method: hyper::Method) -> http::request::Builder {
+        self.cosmos_client().prepare_request(
+            &format!(
+                "dbs/{}/colls/{}/sprocs",
+                self.database_client().database_name(),
+                self.collection_client().collection_name(),
+            ),
+            method,
+            ResourceType::StoredProcedures,
+        )
+    }
+
+    pub fn prepare_request_with_stored_procedure_name(
+        &self,
+        method: hyper::Method,
+    ) -> http::request::Builder {
+        self.cosmos_client().prepare_request(
+            &format!(
+                "dbs/{}/colls/{}/sprocs/{}",
+                self.database_client().database_name(),
+                self.collection_client().collection_name(),
+                self.stored_procedure_name()
+            ),
+            method,
+            ResourceType::StoredProcedures,
+        )
     }
 }

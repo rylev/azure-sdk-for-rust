@@ -22,7 +22,10 @@ impl<'a> ListCollectionsBuilder<'a> {
         ListCollectionsBuilder {
             database_client,
             max_item_count: -1,
-            ..Default::default()
+            user_agent: None,
+            activity_id: None,
+            consistency_level: None,
+            continuation: None,
         }
     }
 }

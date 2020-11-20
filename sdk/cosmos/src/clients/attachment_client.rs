@@ -1,4 +1,5 @@
 use crate::requests;
+use crate::ResourceType;
 use azure_core::No;
 
 use super::*;
@@ -17,53 +18,83 @@ impl AttachmentClient {
         }
     }
 
-    fn hyper_client(
+    pub fn hyper_client(
         &self,
     ) -> &hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
         self.document_client().hyper_client()
     }
 
-    fn cosmos_client(&self) -> &CosmosClient {
+    pub fn cosmos_client(&self) -> &CosmosClient {
         self.document_client().cosmos_client()
     }
 
-    fn database_client(&self) -> &DatabaseClient {
+    pub fn database_client(&self) -> &DatabaseClient {
         self.document_client().database_client()
     }
 
-    fn collection_client(&self) -> &CollectionClient {
+    pub fn collection_client(&self) -> &CollectionClient {
         self.document_client().collection_client()
     }
 
-    fn document_client(&self) -> &DocumentClient {
+    pub fn document_client(&self) -> &DocumentClient {
         &self.document_client
     }
 
-    fn attachment_name(&self) -> &str {
+    pub fn attachment_name(&self) -> &str {
         &self.attachment_name
     }
 
-    fn create_slug(&self) -> requests::CreateSlugAttachmentBuilder<'_, '_, No, No> {
+    pub fn create_slug(&self) -> requests::CreateSlugAttachmentBuilder<'_, '_, No, No> {
         requests::CreateSlugAttachmentBuilder::new(self)
     }
 
-    fn replace_slug(&self) -> requests::ReplaceSlugAttachmentBuilder<'_, '_, No, No> {
+    pub fn replace_slug(&self) -> requests::ReplaceSlugAttachmentBuilder<'_, '_, No, No> {
         requests::ReplaceSlugAttachmentBuilder::new(self)
     }
 
-    fn create_reference(&self) -> requests::CreateReferenceAttachmentBuilder<'_, '_, No, No> {
+    pub fn create_reference(&self) -> requests::CreateReferenceAttachmentBuilder<'_, '_, No, No> {
         requests::CreateReferenceAttachmentBuilder::new(self)
     }
 
-    fn replace_reference(&self) -> requests::ReplaceReferenceAttachmentBuilder<'_, '_, No, No> {
+    pub fn replace_reference(&self) -> requests::ReplaceReferenceAttachmentBuilder<'_, '_, No, No> {
         requests::ReplaceReferenceAttachmentBuilder::new(self)
     }
 
-    fn delete(&self) -> requests::DeleteAttachmentBuilder<'_, '_> {
+    pub fn delete(&self) -> requests::DeleteAttachmentBuilder<'_, '_> {
         requests::DeleteAttachmentBuilder::new(self)
     }
 
-    fn get(&self) -> requests::GetAttachmentBuilder<'_, '_> {
+    pub fn get(&self) -> requests::GetAttachmentBuilder<'_, '_> {
         requests::GetAttachmentBuilder::new(self)
+    }
+
+    pub fn prepare_request(&self, method: hyper::Method) -> http::request::Builder {
+        self.cosmos_client().prepare_request(
+            &format!(
+                "dbs/{}/colls/{}/docs/{}/attachments",
+                self.database_client().database_name(),
+                self.collection_client().collection_name(),
+                self.document_client().document_name(),
+            ),
+            method,
+            ResourceType::Attachments,
+        )
+    }
+
+    pub fn prepare_request_with_attachment_name(
+        &self,
+        method: hyper::Method,
+    ) -> http::request::Builder {
+        self.cosmos_client().prepare_request(
+            &format!(
+                "dbs/{}/colls/{}/docs/{}/attachments/{}",
+                self.database_client().database_name(),
+                self.collection_client().collection_name(),
+                self.document_client().document_name(),
+                self.attachment_name()
+            ),
+            method,
+            ResourceType::Attachments,
+        )
     }
 }

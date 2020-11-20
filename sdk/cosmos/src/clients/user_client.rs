@@ -1,5 +1,6 @@
 use super::*;
 use crate::requests;
+use crate::ResourceType;
 use azure_core::No;
 
 #[derive(Debug, Clone)]
@@ -16,45 +17,65 @@ impl UserClient {
         }
     }
 
-    fn hyper_client(
+    pub fn hyper_client(
         &self,
     ) -> &hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
         self.database_client().hyper_client()
     }
 
-    fn cosmos_client(&self) -> &CosmosClient {
+    pub fn cosmos_client(&self) -> &CosmosClient {
         self.database_client().cosmos_client()
     }
 
-    fn database_client(&self) -> &DatabaseClient {
+    pub fn database_client(&self) -> &DatabaseClient {
         &self.database_client
     }
 
-    fn user_name(&self) -> &str {
+    pub fn user_name(&self) -> &str {
         &self.user_name
     }
 
-    fn create_user(&self) -> requests::CreateUserBuilder<'_, '_> {
+    pub fn create_user(&self) -> requests::CreateUserBuilder<'_, '_> {
         requests::CreateUserBuilder::new(self)
     }
 
-    fn get_user(&self) -> requests::GetUserBuilder<'_, '_> {
+    pub fn get_user(&self) -> requests::GetUserBuilder<'_, '_> {
         requests::GetUserBuilder::new(self)
     }
 
-    fn replace_user(&self) -> requests::ReplaceUserBuilder<'_, '_, No> {
+    pub fn replace_user(&self) -> requests::ReplaceUserBuilder<'_, '_, No> {
         requests::ReplaceUserBuilder::new(self)
     }
 
-    fn delete_user(&self) -> requests::DeleteUserBuilder<'_, '_> {
+    pub fn delete_user(&self) -> requests::DeleteUserBuilder<'_, '_> {
         requests::DeleteUserBuilder::new(self)
     }
 
-    fn list_permissions(&self) -> requests::ListPermissionsBuilder<'_, '_> {
+    pub fn list_permissions(&self) -> requests::ListPermissionsBuilder<'_, '_> {
         requests::ListPermissionsBuilder::new(self)
     }
 
-    fn into_permission_client(self, permission_name: String) -> PermissionClient {
+    pub fn into_permission_client(self, permission_name: String) -> PermissionClient {
         PermissionClient::new(self, permission_name)
+    }
+
+    pub fn prepare_request(&self, method: hyper::Method) -> http::request::Builder {
+        self.cosmos_client().prepare_request(
+            &format!("dbs/{}/users", self.database_client().database_name()),
+            method,
+            ResourceType::Users,
+        )
+    }
+
+    pub fn prepare_request_with_user_name(&self, method: hyper::Method) -> http::request::Builder {
+        self.cosmos_client().prepare_request(
+            &format!(
+                "dbs/{}/users/{}",
+                self.database_client().database_name(),
+                self.user_name()
+            ),
+            method,
+            ResourceType::Users,
+        )
     }
 }

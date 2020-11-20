@@ -96,19 +96,19 @@ impl CosmosClient {
             .header(header::AUTHORIZATION, signature)
     }
 
-    fn hyper_client(&self) -> &hyper::Client<HttpsConnector<hyper::client::HttpConnector>> {
+    pub fn hyper_client(&self) -> &hyper::Client<HttpsConnector<hyper::client::HttpConnector>> {
         &self.hyper_client
     }
 
-    fn create_database(&self) -> requests::CreateDatabaseBuilder<'_, No> {
+    pub fn create_database(&self) -> requests::CreateDatabaseBuilder<'_, No> {
         requests::CreateDatabaseBuilder::new(self)
     }
 
-    fn list_databases(&self) -> requests::ListDatabasesBuilder<'_> {
+    pub fn list_databases(&self) -> requests::ListDatabasesBuilder<'_> {
         requests::ListDatabasesBuilder::new(self)
     }
 
-    fn prepare_request(
+    pub fn prepare_request(
         &self,
         uri_path: &str,
         http_method: hyper::Method,
@@ -129,7 +129,7 @@ impl CosmosClient {
         self.prepare_request_with_signature(uri_path, http_method, &time, &auth)
     }
 
-    fn into_database_client(self, database_name: String) -> DatabaseClient {
+    pub fn into_database_client(self, database_name: String) -> DatabaseClient {
         DatabaseClient::new(self, database_name)
     }
 }

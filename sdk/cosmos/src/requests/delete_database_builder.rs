@@ -17,13 +17,15 @@ impl<'a> DeleteDatabaseBuilder<'a> {
     pub(crate) fn new(database_client: &'a DatabaseClient) -> Self {
         Self {
             database_client,
-            ..Default::default()
+            user_agent: None,
+            activity_id: None,
+            consistency_level: None,
         }
     }
 }
 
 impl<'a> DatabaseClientRequired<'a> for DeleteDatabaseBuilder<'a> {
-    fn database_client(&self) -> &'a dyn DatabaseClient<C> {
+    fn database_client(&self) -> &'a DatabaseClient {
         self.database_client
     }
 }
