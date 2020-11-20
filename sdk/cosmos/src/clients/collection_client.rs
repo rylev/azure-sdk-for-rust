@@ -80,7 +80,7 @@ impl CollectionClient {
         requests::GetPartitionKeyRangesBuilder::new(self)
     }
 
-    pub fn into_document_client<DocName>(
+    pub fn into_document_client(
         self,
         document_name: String,
         partition_keys: PartitionKeys,

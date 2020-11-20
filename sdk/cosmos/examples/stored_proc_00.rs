@@ -24,12 +24,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let authorization_token = AuthorizationToken::new_master(&master_key)?;
 
-    let client = CosmosStruct::new(account, authorization_token);
+    let client = CosmosClient::new(account, authorization_token);
 
     let ret = client
-        .into_database_client(&database)
-        .into_collection_client(&collection)
-        .into_stored_procedure_client("test_proc")
+        .into_database_client(database)
+        .into_collection_client(collection)
+        .into_stored_procedure_client("test_proc".to_owned())
         .execute_stored_procedure()
         .with_parameters(Parameters::new().push("Robert")?)
         .execute::<serde_json::Value>()

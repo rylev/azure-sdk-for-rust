@@ -51,7 +51,7 @@ impl DatabaseClient {
         requests::ListUsersBuilder::new(self)
     }
 
-    pub fn into_collection_client<IntoCowStr>(self, collection_name: String) -> CollectionClient {
+    pub fn into_collection_client(self, collection_name: String) -> CollectionClient {
         CollectionClient::new(self, collection_name)
     }
 
