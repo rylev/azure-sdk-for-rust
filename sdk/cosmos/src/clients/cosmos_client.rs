@@ -1,7 +1,7 @@
 use super::DatabaseClient;
 use crate::headers::*;
 use crate::requests;
-use crate::{AuthorizationToken, ResourceType};
+use crate::{AuthorizationToken, ReadonlyString, ResourceType};
 
 use azure_core::No;
 use http::request::Builder as RequestBuilder;
@@ -129,7 +129,7 @@ impl CosmosClient {
         self.prepare_request_with_signature(uri_path, http_method, &time, &auth)
     }
 
-    pub fn into_database_client(self, database_name: String) -> DatabaseClient {
+    pub fn into_database_client<S: Into<ReadonlyString>>(self, database_name: S) -> DatabaseClient {
         DatabaseClient::new(self, database_name)
     }
 }

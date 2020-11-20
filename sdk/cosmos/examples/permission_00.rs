@@ -51,9 +51,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("create_user_response == {:#?}", create_user_response);
 
     // create the first permission!
-    let permission_client = user_client
-        .clone()
-        .into_permission_client("matrix".to_owned());
+    let permission_client = user_client.clone().into_permission_client("matrix");
     let permission_mode = PermissionMode::Read(get_collection_response.collection);
 
     let create_permission_response = permission_client

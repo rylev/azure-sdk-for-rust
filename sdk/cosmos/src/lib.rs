@@ -67,6 +67,8 @@ pub use crate::user::{User, UserName};
 pub use crate::user_defined_function::UserDefinedFunctionName;
 use http::request::Builder;
 
+type ReadonlyString = std::borrow::Cow<'static, str>;
+
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub enum ResourceType {

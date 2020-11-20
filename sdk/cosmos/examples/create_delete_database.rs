@@ -79,9 +79,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             create_collection_response
         );
 
-        let db_collection = db_client
-            .clone()
-            .into_collection_client("panzadoro".to_owned());
+        let db_collection = db_client.clone().into_collection_client("panzadoro");
 
         let get_collection_response = db_collection.get_collection().execute().await?;
         println!("get_collection_response == {:#?}", get_collection_response);

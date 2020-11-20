@@ -1,5 +1,5 @@
 use crate::requests;
-use crate::ResourceType;
+use crate::{ReadonlyString, ResourceType};
 use azure_core::No;
 
 use super::*;
@@ -7,14 +7,17 @@ use super::*;
 #[derive(Debug, Clone)]
 pub struct AttachmentClient {
     document_client: DocumentClient,
-    attachment_name: String,
+    attachment_name: ReadonlyString,
 }
 
 impl AttachmentClient {
-    pub(crate) fn new(document_client: DocumentClient, attachment_name: String) -> Self {
+    pub(crate) fn new<S: Into<ReadonlyString>>(
+        document_client: DocumentClient,
+        attachment_name: S,
+    ) -> Self {
         Self {
             document_client,
-            attachment_name,
+            attachment_name: attachment_name.into(),
         }
     }
 

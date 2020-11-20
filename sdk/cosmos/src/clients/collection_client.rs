@@ -1,20 +1,23 @@
-use super::DatabaseClient;
+use super::{DatabaseClient, UserDefinedFunctionClient};
 use crate::clients::*;
 use crate::requests;
-use crate::{PartitionKeys, ResourceType, UserDefinedFunctionClient};
+use crate::{PartitionKeys, ReadonlyString, ResourceType};
 use azure_core::No;
 
 #[derive(Debug, Clone)]
 pub struct CollectionClient {
     database_client: DatabaseClient,
-    collection_name: String,
+    collection_name: ReadonlyString,
 }
 
 impl CollectionClient {
-    pub(crate) fn new(database_client: DatabaseClient, collection_name: String) -> Self {
+    pub(crate) fn new<S: Into<ReadonlyString>>(
+        database_client: DatabaseClient,
+        collection_name: S,
+    ) -> Self {
         Self {
             database_client,
-            collection_name,
+            collection_name: collection_name.into(),
         }
     }
 
@@ -80,28 +83,28 @@ impl CollectionClient {
         requests::GetPartitionKeyRangesBuilder::new(self)
     }
 
-    pub fn into_document_client(
+    pub fn into_document_client<S: Into<ReadonlyString>>(
         self,
-        document_name: String,
+        document_name: S,
         partition_keys: PartitionKeys,
     ) -> DocumentClient {
         DocumentClient::new(self, document_name, partition_keys)
     }
 
-    pub fn into_trigger_client(self, trigger_name: String) -> TriggerClient {
+    pub fn into_trigger_client<S: Into<ReadonlyString>>(self, trigger_name: S) -> TriggerClient {
         TriggerClient::new(self, trigger_name)
     }
 
-    pub fn into_user_defined_function_client(
+    pub fn into_user_defined_function_client<S: Into<ReadonlyString>>(
         self,
-        user_defined_function_name: String,
+        user_defined_function_name: S,
     ) -> UserDefinedFunctionClient {
         UserDefinedFunctionClient::new(self, user_defined_function_name)
     }
 
-    pub fn into_stored_procedure_client(
+    pub fn into_stored_procedure_client<S: Into<ReadonlyString>>(
         self,
-        stored_procedure_name: String,
+        stored_procedure_name: S,
     ) -> StoredProcedureClient {
         StoredProcedureClient::new(self, stored_procedure_name)
     }

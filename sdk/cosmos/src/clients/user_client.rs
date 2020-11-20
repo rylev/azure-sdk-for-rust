@@ -1,19 +1,21 @@
 use super::*;
-use crate::requests;
-use crate::ResourceType;
+use crate::{requests, ReadonlyString, ResourceType};
 use azure_core::No;
 
 #[derive(Debug, Clone)]
 pub struct UserClient {
     database_client: DatabaseClient,
-    user_name: String,
+    user_name: ReadonlyString,
 }
 
 impl UserClient {
-    pub(crate) fn new(database_client: DatabaseClient, user_name: String) -> Self {
+    pub(crate) fn new<S: Into<ReadonlyString>>(
+        database_client: DatabaseClient,
+        user_name: S,
+    ) -> Self {
         Self {
             database_client,
-            user_name,
+            user_name: user_name.into(),
         }
     }
 
@@ -55,7 +57,10 @@ impl UserClient {
         requests::ListPermissionsBuilder::new(self)
     }
 
-    pub fn into_permission_client(self, permission_name: String) -> PermissionClient {
+    pub fn into_permission_client<S: Into<ReadonlyString>>(
+        self,
+        permission_name: S,
+    ) -> PermissionClient {
         PermissionClient::new(self, permission_name)
     }
 

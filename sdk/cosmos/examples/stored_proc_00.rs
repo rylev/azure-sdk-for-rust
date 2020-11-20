@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let ret = client
         .into_database_client(database)
         .into_collection_client(collection)
-        .into_stored_procedure_client("test_proc".to_owned())
+        .into_stored_procedure_client("test_proc")
         .execute_stored_procedure()
         .with_parameters(Parameters::new().push("Robert")?)
         .execute::<serde_json::Value>()

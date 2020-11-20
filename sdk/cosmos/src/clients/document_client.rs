@@ -1,23 +1,23 @@
 use super::{AttachmentClient, CollectionClient, CosmosClient, DatabaseClient};
 use crate::requests;
-use crate::{PartitionKeys, ResourceType};
+use crate::{PartitionKeys, ReadonlyString, ResourceType};
 
 #[derive(Debug, Clone)]
 pub struct DocumentClient {
     collection_client: CollectionClient,
-    document_name: String,
+    document_name: ReadonlyString,
     partition_keys: PartitionKeys,
 }
 
 impl DocumentClient {
-    pub(crate) fn new(
+    pub(crate) fn new<S: Into<ReadonlyString>>(
         collection_client: CollectionClient,
-        document_name: String,
+        document_name: S,
         partition_keys: PartitionKeys,
     ) -> Self {
         Self {
             collection_client,
-            document_name,
+            document_name: document_name.into(),
             partition_keys,
         }
     }
@@ -60,7 +60,10 @@ impl DocumentClient {
         requests::ListAttachmentsBuilder::new(self)
     }
 
-    pub fn into_attachment_client(self, attachment_name: String) -> AttachmentClient {
+    pub fn into_attachment_client<S: Into<ReadonlyString>>(
+        self,
+        attachment_name: S,
+    ) -> AttachmentClient {
         AttachmentClient::new(self, attachment_name)
     }
 

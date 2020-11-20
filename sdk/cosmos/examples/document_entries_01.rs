@@ -69,7 +69,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let document_client = client
         .clone()
-        .into_document_client("ciccia".to_owned(), partition_keys.clone());
+        .into_document_client("ciccia", partition_keys.clone());
 
     let get_document_response = document_client
         .get_document()

@@ -1,19 +1,22 @@
 use super::*;
 use crate::requests;
-use crate::ResourceType;
+use crate::{ReadonlyString, ResourceType};
 use azure_core::No;
 
 #[derive(Debug, Clone)]
 pub struct StoredProcedureClient {
     collection_client: CollectionClient,
-    stored_procedure_name: String,
+    stored_procedure_name: ReadonlyString,
 }
 
 impl StoredProcedureClient {
-    pub(crate) fn new(collection_client: CollectionClient, stored_procedure_name: String) -> Self {
+    pub(crate) fn new<S: Into<ReadonlyString>>(
+        collection_client: CollectionClient,
+        stored_procedure_name: S,
+    ) -> Self {
         Self {
             collection_client,
-            stored_procedure_name,
+            stored_procedure_name: stored_procedure_name.into(),
         }
     }
 

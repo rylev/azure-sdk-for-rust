@@ -1,19 +1,22 @@
 use super::*;
 use crate::requests;
-use crate::ResourceType;
+use crate::{ReadonlyString, ResourceType};
 use azure_core::No;
 
 #[derive(Debug, Clone)]
 pub struct DatabaseClient {
     cosmos_client: CosmosClient,
-    database_name: String,
+    database_name: ReadonlyString,
 }
 
 impl DatabaseClient {
-    pub(crate) fn new(cosmos_client: CosmosClient, database_name: String) -> Self {
+    pub(crate) fn new<S: Into<ReadonlyString>>(
+        cosmos_client: CosmosClient,
+        database_name: S,
+    ) -> Self {
         Self {
             cosmos_client,
-            database_name,
+            database_name: database_name.into(),
         }
     }
 
@@ -51,11 +54,14 @@ impl DatabaseClient {
         requests::ListUsersBuilder::new(self)
     }
 
-    pub fn into_collection_client(self, collection_name: String) -> CollectionClient {
+    pub fn into_collection_client<S: Into<ReadonlyString>>(
+        self,
+        collection_name: S,
+    ) -> CollectionClient {
         CollectionClient::new(self, collection_name)
     }
 
-    pub fn into_user_client(self, user_name: String) -> UserClient {
+    pub fn into_user_client<S: Into<ReadonlyString>>(self, user_name: S) -> UserClient {
         UserClient::new(self, user_name)
     }
 

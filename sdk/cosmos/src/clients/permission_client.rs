@@ -1,17 +1,20 @@
 use super::*;
-use crate::{requests, ResourceType};
+use crate::{requests, ReadonlyString, ResourceType};
 
 #[derive(Debug, Clone)]
 pub struct PermissionClient {
     user_client: UserClient,
-    permission_name: String,
+    permission_name: ReadonlyString,
 }
 
 impl PermissionClient {
-    pub(crate) fn new(user_client: UserClient, permission_name: String) -> Self {
+    pub(crate) fn new<S: Into<ReadonlyString>>(
+        user_client: UserClient,
+        permission_name: S,
+    ) -> Self {
         Self {
             user_client,
-            permission_name,
+            permission_name: permission_name.into(),
         }
     }
 

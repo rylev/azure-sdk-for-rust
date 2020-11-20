@@ -14,13 +14,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     //let databases = cosmos_client.list_databases().execute().await?;
     //println!("databases == {:#?}", databases);
 
-    let database_client = cosmos_client.into_database_client("pollo".to_owned());
+    let database_client = cosmos_client.into_database_client("pollo");
     println!("database_name == {}", database_client.database_name());
 
     let collections = database_client.list_collections().execute().await?;
     println!("collections == {:#?}", collections);
 
-    let collection_client = database_client.into_collection_client("cnt".to_owned());
+    let collection_client = database_client.into_collection_client("cnt");
     let collection = collection_client.get_collection().execute().await?;
     println!("collection == {:#?}", collection);
 

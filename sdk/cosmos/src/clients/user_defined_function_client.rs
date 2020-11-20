@@ -1,22 +1,22 @@
 use super::*;
 use crate::requests;
-use crate::ResourceType;
+use crate::{ReadonlyString, ResourceType};
 use azure_core::No;
 
 #[derive(Debug, Clone)]
 pub struct UserDefinedFunctionClient {
     collection_client: CollectionClient,
-    user_defined_function_name: String,
+    user_defined_function_name: ReadonlyString,
 }
 
 impl UserDefinedFunctionClient {
-    pub(crate) fn new(
+    pub(crate) fn new<S: Into<ReadonlyString>>(
         collection_client: CollectionClient,
-        user_defined_function_name: String,
+        user_defined_function_name: S,
     ) -> Self {
         Self {
             collection_client,
-            user_defined_function_name,
+            user_defined_function_name: user_defined_function_name.into(),
         }
     }
 

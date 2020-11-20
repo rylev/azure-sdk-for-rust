@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let collection_client = database_client.into_collection_client(collection);
     let user_defined_function_client = collection_client
         .clone()
-        .into_user_defined_function_client("test15".to_owned());
+        .into_user_defined_function_client("test15");
 
     let ret = user_defined_function_client
         .create_user_defined_function()

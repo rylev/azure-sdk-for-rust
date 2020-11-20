@@ -1,19 +1,22 @@
 use super::*;
 use crate::requests;
-use crate::ResourceType;
+use crate::{ReadonlyString, ResourceType};
 use azure_core::No;
 
 #[derive(Debug, Clone)]
 pub struct TriggerClient {
     collection_client: CollectionClient,
-    trigger_name: String,
+    trigger_name: ReadonlyString,
 }
 
 impl TriggerClient {
-    pub(crate) fn new(collection_client: CollectionClient, trigger_name: String) -> Self {
+    pub(crate) fn new<S: Into<ReadonlyString>>(
+        collection_client: CollectionClient,
+        trigger_name: S,
+    ) -> Self {
         Self {
             collection_client,
-            trigger_name,
+            trigger_name: trigger_name.into(),
         }
     }
 
