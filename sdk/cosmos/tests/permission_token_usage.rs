@@ -103,9 +103,11 @@ async fn permission_token_usage() {
     };
 
     new_collection_client
-        .create_document()
-        .is_upsert(true)
-        .execute(&document)
+        .create_document(
+            Context::new(),
+            &document,
+            CreateDocumentOptions::new().is_upsert(true),
+        )
         .await
         .unwrap_err();
 
@@ -135,9 +137,11 @@ async fn permission_token_usage() {
     // now we have an "All" authorization_token
     // so the create_document should succeed!
     let create_document_response = new_collection_client
-        .create_document()
-        .is_upsert(true)
-        .execute(&document)
+        .create_document(
+            Context::new(),
+            &document,
+            CreateDocumentOptions::new().is_upsert(true),
+        )
         .await
         .unwrap();
     println!(
